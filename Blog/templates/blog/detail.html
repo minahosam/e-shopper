@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+blog single
+{% endblock title %}
+{% block content %}
+<section>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="blog-post-area">
+					<h2 class="title text-center">Latest From our Blog</h2>
+					<div class="single-blog-post">
+						<h3>{{detail.title}}</h3>
+						<div class="post-meta">
+							<ul>
+								<li><i class="fa fa-user"></i>{{detail.post_creator}}</li>
+								<li><i class="fa fa-clock-o"></i>{{detail.post_time}}</li>
+								<li><i class="fa fa-calendar"></i>{{detail.post_date}}</li>
+								{% for tag in detail.tags.all %}
+								<li><i class="fa fa-tags"></i>
+									{{tag}}
+								</li>
+								{% endfor %}
+							</ul>
+							<span>
+								<i class="fa fa-star"></i>
+								<i class="fa fa-star"></i>
+								<i class="fa fa-star"></i>
+								<i class="fa fa-star"></i>
+								<i class="fa fa-star-half-o"></i>
+							</span>
+						</div>
+						<a href="">
+							<img src="{{detail.post_image.url}}" alt="">
+						</a>
+						<p>
+							{{detail.post_content}}
+						</p>
+						<div class="pager-area">
+							<ul class="pager pull-right">
+								<li><a href="#">Pre</a></li>
+								<li><a href="#">Next</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!--/blog-post-area-->
+				<div class="like-post">
+					<button class="comment-like btn-lg"><a href="{% url 'blog:like' detail.id %}">
+					{% if request.user in detail.liked_post.all %}
+					<i class="fa fa-thumbs-up" aria-hidden="true"></i>
+					{% else %}
+					<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+					{% endif %}
+						{{detail.liked_post.count}}</a></button>
+					<button class="comment-dislike btn-lg"><a href="{% url 'blog:dislike' detail.id %}">		
+						{% if request.user in detail.disliked_post.all %}
+						<i class="fa fa-thumbs-down" aria-hidden="true"></i>
+						{% else %}
+						<i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+						{% endif %}{{detail.disliked_post.count}}</a></button>
+				</div>
+				<div class="rating-area">
+					<ul class="ratings">
+						<li class="rate-this">Rate this item:</li>
+						<li>
+							<i class="fa fa-star color"></i>
+							<i class="fa fa-star color"></i>
+							<i class="fa fa-star color"></i>
+							<i class="fa fa-star"></i>
+							<i class="fa fa-star"></i>
+						</li>
+						<li class="color">(6 votes)</li>
+					</ul>
+					<ul class="tag">
+						<li>TAG:</li>
+						{% for tag in detail.tags.all %}
+						<li><a class="color" href="">{{tag}} <span>/</span></a></li>
+						{% endfor %}
+					</ul>
+				</div>
+				<!--/rating-area-->
+
+				<div class="socials-share">
+					<a href=""><img src="images/blog/socials.png" alt=""></a>
+				</div>
+				<!--/socials-share-->
+
+				<div class="media commnets">
+					<a class="pull-left" href="#">
+						<img class="media-object" src="images/blog/man-one.jpg" alt="">
+					</a>
+					<div class="media-body">
+						<h4 class="media-heading">Annie Davis</h4>
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+							labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+							laboris nisi ut aliquip ex ea commodo consequat.</p>
+						<div class="blog-socials">
+							<ul>
+								<li><a href=""><i class="fa fa-facebook"></i></a></li>
+								<li><a href=""><i class="fa fa-twitter"></i></a></li>
+								<li><a href=""><i class="fa fa-dribbble"></i></a></li>
+								<li><a href=""><i class="fa fa-google-plus"></i></a></li>
+							</ul>
+							<a class="btn btn-primary" href="">Other Posts</a>
+						</div>
+					</div>
+				</div>
+				<!--Comments-->
+				<div class="response-area">
+					<h2>{{comments.count}} COMMENT{{ detail.comment.count|pluralize:'S' }}</h2>
+					<ul class="media-list">
+						{% for com in comments %}
+						<li class="media">
+
+							<a class="pull-left" href="#">
+								<img class="media-object" src="{{com.comment_author.userprofile.userphoto.url}}" alt="">
+							</a>
+							<div class="media-body">
+								<ul class="sinlge-post-meta">
+									<li><i class="fa fa-user"></i>{{com.comment_author}}</li>
+									<li><i class="fa fa-clock-o"></i>{{com.comment_time}}</li>
+									<li><i class="fa fa-calendar"></i> {{com.comment_date}}</li>
+								</ul>
+								<p>{{com.comment_content}}</p>
+								<button class="comment-like"><a href="{% url 'blog:like' com.id %}"></a><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+									0</button>
+								<button class="comment-dislike"><i class="fa fa-thumbs-o-down"
+										aria-hidden="true"></i>0</button>
+								<button class="comment-reply" type="button" data-toggle="collapse"
+									data-target="#demo{{com.id}}" aria-expanded="false"
+									aria-controls="demo{{com.id}}"><i class="fa fa-reply"></i>Reply</button>
+								<div class="collapse" id="demo{{com.id}}">
+									<form action="" method="POST">
+										{% csrf_token %}
+										{{form1}}
+										<input type="hidden" name="com_id" value="{{com.id}}">
+										<button type="submit">reply</button>
+									</form>
+								</div>
+							</div>
+						</li>
+						{% for repl in com.c_replied.all %}
+						<li class="media second-media">
+
+							<a class="pull-left" href="#">
+								<img class="media-object" src="{{repl.comment_author.userprofile.userphoto.url}}"
+									alt="">
+							</a>
+							<div class="media-body">
+								<ul class="sinlge-post-meta">
+									<li><i class="fa fa-user"></i>{{repl.comment_author}}</li>
+									<li><i class="fa fa-clock-o"></i>{{repl.comment_time}}</li>
+									<li><i class="fa fa-calendar"></i> {{repl.comment_date}}</li>
+								</ul>
+								<p>{{repl.comment_content}}</p>
+								<button class="comment-like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+									0</button>
+								<button class="comment-dislike"><i class="fa fa-thumbs-o-down"
+										aria-hidden="true"></i>0</button>
+								<button class="comment-reply" type="button" data-toggle="collapse"
+									data-target="#demo{{repl.id}}" aria-expanded="false"
+									aria-controls="demo{{repl.id}}"><i class="fa fa-reply"></i>Reply</button>
+								<div class="collapse" id="demo{{repl.id}}">
+									<form action="" method="POST">
+										{% csrf_token %}
+										{{form1}}
+										<input type="hidden" name="com_id" value="{{repl.id}}">
+										<button type="submit">reply</button>
+									</form>
+								</div>
+							</div>
+						</li>
+						{% endfor %}
+						{% endfor %}
+					</ul>
+				</div>
+				<!--/Response-area-->
+				<div class="replay-box">
+					<div class="row">
+						<div class="col-sm-4">
+							<h2>Leave a comment</h2>
+							<form action="" method="POST">
+								{% csrf_token %}
+								{{form1}}
+								<button type="submit">post comment</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!--/Repaly Box-->
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock content %}

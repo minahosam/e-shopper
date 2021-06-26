@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+	<section>
+		<div class="container">
+			<div class="row">
+				{% for all in all_post %}
+				<div class="col-sm-12">
+					<div class="blog-post-area">
+						<h2 class="title text-center">{{all.title}}</h2>
+						<div class="single-blog-post">
+							<h3>{{all.title}}</h3>
+							<div class="post-meta">
+								<ul>
+									<li><i class="fa fa-user"></i>{{all.post_creator}}</li>
+									<li><i class="fa fa-clock-o"></i>{{all.post_time}}</li>
+									<li><i class="fa fa-calendar"></i>{{all.post_date}}</li>
+									{% for tag in all.tags.all %}
+										<li><i class="fa fa-tags"></i>	  
+										{{tag}}
+										</li>
+									{% endfor %}
+									<li><i class="fa fa-comment"></i>{{all.comment.count}}</li>
+									<li><i class="fa fa-thumbs-up"></i>{{all.liked_post.count}}</li>
+									<li><i class="fa fa-thumbs-down"></i>{{all.disliked_post.count}}</li>
+								</ul>
+								<span>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star-half-o"></i>
+								</span>
+							</div>
+							<a href="{% url 'blog:detail' all.id %}">
+								<img src="{{all.post_image.url}}" alt="">
+							</a>
+							<p>{{all.post_content}}</p>
+							<a  class="btn btn-primary" href="{% url 'blog:detail' all.id %}">Read More</a>
+						</div>
+						{% endfor %}
+						<div class="pagination-area">
+							{% if all_post.has_other_pages %}
+							<ul class="pagination">
+								{% if all_post.has_previous %}
+      								<li><a href="?page={{ all_post.previous_page_number }}"><i class="fa fa-angle-double-left"></i></a></li>
+    							{% else %}
+      								<li class="disabled"><span>&laquo;</span></li>
+    							{% endif %}
+								{% for i in all_post.paginator.page_range %}
+      								{% if all_post.number == i %}
+										<li><a href="?page={{ i }}" class="active">{{i}}</a></li>
+									{% else %}
+										<li><a href="?page={{ i }}">{{ i }}</a></li>
+									{% endif %}
+								{% endfor %}
+								{% if all_post.has_next %}
+									<li><a href="?page={{ all_post.next_page_number }}"><i class="fa fa-angle-double-right"></i></a></li>
+								{% else %}
+      								<li class="disabled"><span>&raquo;</span></li>
+    							{% endif %}
+							</ul>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	{% endblock content %}
