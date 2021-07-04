@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+  search-brand
+{% endblock title %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="row">
+      {% include "main/imp.html" %}
+      <div class="col-sm-9 padding-right">
+        <div class="features_items">
+          <!--features_items-->
+          {% for br in brand %}
+          <h2 class="title text-center">{{br.product_brand}} Items</h2>
+          <div class="col-sm-4">
+            <div class="product-image-wrapper">
+              <div class="single-products">
+                <div class="productinfo text-center">
+                  <img src="{{br.product_photo.url}}" alt="" />
+                  <h2>${{br.product_price}}</h2>
+                  <a href="{% url 'main:detail' br.slug %}">
+                    <p>{{br.product_name}}</p>
+                  </a>
+                  <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add
+                    to cart</a>
+                </div>
+                <div class="product-overlay">
+                  <div class="overlay-content">
+                    <h2>${{br.product_price}}</h2>
+                    <a href="{% url 'main:detail' br.slug %}">
+                      <p>{{br.product_name}}</p>
+                    </a>
+                    <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                  </div>
+                </div>
+              </div>
+              <div class="choose">
+                <ul class="nav nav-pills nav-justified">
+                  <li><a href="{% url 'main:wish' br.slug %}"><i {% if request.user in br.add_to_wishlist.all %}
+                        class="fa fa-heart" style="color: red;" {% else %} class="fa fa-heart-o" style="color: red;"
+                        {% endif %}></i>Add to wishlist</a></li>
+                  <li><a href="#"><i class="fa fa-plus-square"></i>Add to compare</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+          {% endblock content %}
