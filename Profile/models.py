@@ -8,7 +8,7 @@ class userprofile(models.Model):
     firstname=models.CharField(max_length=50)
     lastname=models.CharField(max_length=50)
     city = models.CharField(max_length = 150)
-    email = models.EmailField(max_length=500)
+    email = models.EmailField(max_length=500,unique=True)
     userphoto=models.ImageField(upload_to='profile_photos/',default='')
     def __str__(self):
         return str(self.usrename)

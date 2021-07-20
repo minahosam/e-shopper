@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_filters',
 ]
 SITE_ID = 1
+LOGIN_REDIRECT_URL='/'
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

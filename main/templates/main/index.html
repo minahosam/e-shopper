@@ -90,7 +90,7 @@
 									<img src="{{product.product_photo.url}}" alt="" />
 									<h2>${{product.product_price}}</h2>
 									<a href="{% url 'main:detail' product.slug %}"><p>{{product.product_name}}</p></a>
-									<a href="#" class="btn btn-default add-to-cart"><i
+									<a href="#" class="btn btn-default add-to-cart update-cart" data-product="{{product.id}}" data-action="add"><i
 											class="fa fa-shopping-cart"></i>Add
 										to cart</a>
 								</div>
@@ -98,7 +98,7 @@
 									<div class="overlay-content">
 										<h2>${{product.product_price}}</h2>
 										<a href="{% url 'main:detail' product.slug %}"><p>{{product.product_name}}</p></a>
-										<a href="#" class="btn btn-default add-to-cart"><i
+										<a href="#" class="btn btn-default add-to-cart  update-cart" data-product="{{product.id}}" data-action="add"><i
 												class="fa fa-shopping-cart"></i>Add to cart</a>
 									</div>
 								</div>

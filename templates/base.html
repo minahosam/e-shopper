@@ -22,6 +22,25 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'images/ico/apple-touch-icon-114-precomposed.png' %}">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'images/ico/apple-touch-icon-72-precomposed.png' %}">
     <link rel="apple-touch-icon-precomposed" href="{% static 'images/ico/apple-touch-icon-57-precomposed.png' %}">
+	<script type="text/javascript">
+		var user = '{{request.user}}'
+		function getToken(name) {
+			let cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				const cookies = document.cookie.split(';');
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+		const csrftoken = getToken('csrftoken');
+	</script>
 </head><!--/head-->
 
 <body>
@@ -88,9 +107,13 @@
 							<ul class="nav navbar-nav">
 								<li><a href="#"><i class="fa fa-user"></i> Account</a></li>
 								<li><a href="{% url 'main:wishlist' %}"><i class="fa fa-star"></i> Wishlist</a></li>
-								<li><a href="checkout.html"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-								<li><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-								<li><a href="{% url 'account_login' %}"><i class="fa fa-lock"></i> Login</a></li>
+								<li><a href="{% url 'main:checkout' %}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+								<li><a href="{% url 'main:cart' %}"><i class="fa fa-shopping-cart"> Cart<b id="cart-total" style="color: red;" style="font-weight:550">{{total}}</b></i></a></li>
+								{% if request.user.is_authenticated %}
+									<li><a href="{% url 'account_logout' %}">Logout</a></li>
+								{% else %}
+									<li><a href="{% url 'account_login' %}">Login</a></li>
+								{% endif %}
 							</ul>
 						</div>
 					</div>
@@ -119,7 +142,11 @@
 										<li><a href="product-details.html">Product Details</a></li> 
 										<li><a href="checkout.html">Checkout</a></li> 
 										<li><a href="cart.html">Cart</a></li> 
-										<li><a href="login.html">Login</a></li> 
+										{% if request.user.is_authenticated %}
+										<li><a href="{% url 'account_logout' %}">Logout</a></li>
+										{% else %}
+										<li><a href="{% url 'account_login' %}">Login</a></li>
+										{% endif %} 
                                     </ul>
                                 </li> 
 								<li class="dropdown"><a href="">Blog<i class="fa fa-angle-down"></i></a>
@@ -310,7 +337,9 @@
 <script src="{% static 'js/jquery.scrollUp.min.js' %}"></script>
 <script src="{% static 'js/price-range.js' %}"></script>
 <script src="{% static 'js/jquery.prettyPhoto.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/main3.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>
