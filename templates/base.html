@@ -25,7 +25,7 @@
 	<script type="text/javascript">
 		var user = '{{request.user}}'
 		function getToken(name) {
-			let cookieValue = null;
+			var cookieValue = null;
 			if (document.cookie && document.cookie !== '') {
 				const cookies = document.cookie.split(';');
 				for (let i = 0; i < cookies.length; i++) {
@@ -39,7 +39,32 @@
 			}
 			return cookieValue;
 		}
-		const csrftoken = getToken('csrftoken');
+		var csrftoken = getToken('csrftoken');
+		function getCookie(name) {
+			// Split cookie string and get all individual name=value pairs in an array
+			var cookieArr = document.cookie.split(";");
+
+			// Loop through the array elements
+			for(var i = 0; i < cookieArr.length; i++) {
+				var cookiePair = cookieArr[i].split("=");
+
+				/* Removing whitespace at the beginning of the cookie name
+				and compare it with the given string */
+				if(name == cookiePair[0].trim()) {
+					// Decode the cookie value and return
+					return decodeURIComponent(cookiePair[1]);
+				}
+			}
+
+			// Return null if not found
+			return null;
+		}
+		var CART = JSON.parse(getCookie('cart'))
+		if(CART == undefined){
+			CART={}
+			document.cookie = 'cart='+JSON.stringify(CART) + ';domain+;path=/'
+		}
+		console.log(CART)
 	</script>
 </head><!--/head-->
 
@@ -110,7 +135,7 @@
 								<li><a href="{% url 'main:checkout' %}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
 								<li><a href="{% url 'main:cart' %}"><i class="fa fa-shopping-cart"> Cart<b id="cart-total" style="color: red;" style="font-weight:550">{{total}}</b></i></a></li>
 								{% if request.user.is_authenticated %}
-									<li><a href="{% url 'account_logout' %}">Logout</a></li>
+									<li><a href="{% url 'account_logout' %}">Logout|{{request.user}}</a></li>
 								{% else %}
 									<li><a href="{% url 'account_login' %}">Login</a></li>
 								{% endif %}
@@ -339,7 +364,6 @@
 <script src="{% static 'js/jquery.prettyPhoto.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
-<script src="{% static 'js/main3.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>

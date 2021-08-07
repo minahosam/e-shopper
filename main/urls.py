@@ -11,5 +11,6 @@ urlpatterns = [
     path('cart/',cart,name='cart'),
     path('checkout/',checkout,name='checkout'),
     path('updateCart/',update_cart,name='cart_updation'),
-    path('checkout/country/<str:country>',country_name_from_json,name='country_name')
+    path('checkout/country/<str:country>',country_name_from_json,name='country_name'),
+    path('Process/',process_order,name='process')
 ]

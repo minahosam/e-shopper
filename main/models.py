@@ -21,6 +21,7 @@ class index(models.Model):
     product_condition = models.CharField(max_length=20,choices=condition,default='New')
     product_description=models.CharField(max_length=150,default='')
     product_quantity=models.IntegerField(default=0)
+    product_digital =models.BooleanField(default=True)
     slug=models.SlugField(default='')
     def __str__(self):
         return self.product_name
@@ -96,3 +97,21 @@ class state(models.Model):
     state_name=models.CharField(max_length=50)
     def __str__(self):
         return self.state_name
+class shippinginfo(models.Model):
+    shipping_user=models.ForeignKey(userprofile,related_name='shipping_user', on_delete=models.CASCADE)
+    shipping_order=models.ForeignKey(order,related_name='shipping_order', on_delete=models.CASCADE)
+    shipping_mail=models.ForeignKey(userprofile, to_field='email',related_name='shipping_mail', on_delete=models.CASCADE)
+    title=models.CharField(default='',max_length=50)
+    shipping_firstname=models.ForeignKey(userprofile,to_field='firstname',related_name='shipping_firstname', on_delete=models.CASCADE)
+    shipping_middlename=models.CharField(default='',max_length=50)
+    shipping_lastname=models.ForeignKey(userprofile,to_field='lastname', on_delete=models.CASCADE)
+    shipping_adress1=models.CharField(max_length=500)
+    shipping_adress2=models.CharField(default='',max_length=50)
+    shipping_zipcode=models.CharField(max_length=10)
+    shipping_country=models.ForeignKey(country, related_name='shipping_country', on_delete=models.CASCADE)
+    shipping_state=models.ForeignKey(state, related_name='shipping_state', on_delete=models.CASCADE)
+    shipping_phone=models.CharField( max_length=50)
+    shipping_mobile_number=models.CharField( max_length=50)
+    shipping_fax=models.CharField( max_length=50)
+    def __str__(self):
+        return f'{self.id}------------{self.shipping_firstname}'

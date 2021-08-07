@@ -13,10 +13,10 @@ Checkout | E-Shopper
 				</ol>
 			</div><!--/breadcrums-->
 
-			<div class="step-one">
+			<div class="step-one hidden" id="payment1">
 				<h2 class="heading">Step1</h2>
 			</div>
-			<div class="checkout-options">
+			<div class="checkout-options hidden" id="payment2">
 				<h3>New User</h3>
 				<p>Checkout options</p>
 				<ul class="nav">
@@ -32,13 +32,13 @@ Checkout | E-Shopper
 				</ul>
 			</div><!--/checkout-options-->
 
-			<div class="register-req">
+			<div class="register-req hidden" id="payment3">
 				<p>Please use Register And Checkout to easily get access to your order history, or use Checkout as Guest</p>
 			</div><!--/register-req-->
 
-			<div class="shopper-informations">
+			<div class="shopper-informations ">
 				<div class="row">
-					<div class="col-sm-3">
+					<div class="col-sm-3 hidden" id="payment4">
 						<div class="shopper-info">
 							<p>Shopper Information</p>
 							<form>
@@ -49,43 +49,45 @@ Checkout | E-Shopper
 							<a class="btn btn-primary" href="">Continue</a>
 						</div>
 					</div>
-					<div class="col-sm-5 clearfix">
+					<div class="col-sm-5 clearfix" id="billingTo">
 						<div class="bill-to">
 							<p>Bill To</p>
-							<div class="form-one">
-								<form>
-									<input type="text" placeholder="Email*">
-									<input type="text" placeholder="Title">
-									<input type="text" placeholder="First Name *">
-									<input type="text" placeholder="Middle Name">
-									<input type="text" placeholder="Last Name *">
-									<input type="text" placeholder="Address 1 *">
-									<input type="text" placeholder="Address 2">
+							<div class="form-one" >
+								<form id="shippingForm1">
+									<input type="text" placeholder="Email*" required value="{{info.shipping_mail}}" name="mail">
+									<input type="text" placeholder="Title" value="{{info.title}}" name="title">
+									<input type="text" placeholder="First Name *" required value="{{info.shipping_firstname}}" name="firstname">
+									<input type="text" placeholder="Middle Name" value="{{info.shipping_middlename}}" name="middlename">
+									<input type="text" placeholder="Last Name *" required value="{{info.shipping_lastname}}" name="lastname">
+									<input type="text" placeholder="Address 1 *" required value="{{info.shipping_adress1}}" name="adress1">
+									<input type="text" placeholder="Address 2" value="{{info.shipping_adress2}}" name="adress2">
+									<input type="submit" value="continue" class="btn btn-success" id="shippingButton1">
 								</form>
 							</div>
 							<div class="form-two">
-								<form>
-									<input type="text" placeholder="Zip / Postal Code *">
-									<select id="country">
+								<form id="shippingForm2" class="hidden">
+									<input type="text" placeholder="Zip / Postal Code *" required value="{{info.shipping_zipcode}}" name="zipcode">
+									<select id="country" required value="{{info.shipping_country}}" name="country">
 										<option id="countrySelect">-- Country --</option>
 										{% for country in countries %}
 										<option id="contrySelect">{{country}}</option>										  
 										{% endfor %}
 									</select>
-									<select id="state">
+									<select id="state" required value="{{info.shipping_state}}" name="state">
 										<option id="stateSelct">-- State / Province / Region --</option>
 										<!-- {% for st in countryState %}
 										<option>{{st.state_name}}</option>										  
 										{% endfor %} -->
 									</select>
-									<input type="text" placeholder="Phone *">
-									<input type="text" placeholder="Mobile Phone">
-									<input type="text" placeholder="Fax">
+									<input type="text" placeholder="Phone *" required value="{{info.shipping_phone}}" name="phone">
+									<input type="text" placeholder="Mobile Phone" value="{{info.shipping_mobile_number}}" name="mobile_number">
+									<input type="text" placeholder="Fax" value="{{info.shipping_fax}}" name="fax">
+									<input type="submit" value="order" class="btn btn-success btn-block" id="shippingButton2">
 								</form>
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-4" id="notes">
 						<div class="order-message">
 							<p>Shipping Order</p>
 							<textarea name="message"  placeholder="Notes about your order, Special Notes for Delivery" rows="16"></textarea>
@@ -161,17 +163,143 @@ Checkout | E-Shopper
 					</tbody>
 				</table>
 			</div>
-			<div class="payment-options">
+			<div class="payment-options hidden" id="paymentMethod">
 					<span>
-						<label><input type="checkbox"> Direct Bank Transfer</label>
+						<label><input type="checkbox" id='bank'> Direct Bank Transfer</label>
 					</span>
 					<span>
 						<label><input type="checkbox"> Check Payment</label>
 					</span>
 					<span>
-						<label><input type="checkbox"> Paypal</label>
+						<label><input type="checkbox" id="paypal"> Paypal</label>
 					</span>
 				</div>
 		</div>
 	</section> <!--/#cart_items-->
+	<script type="text/javascript">
+		var shipping = '{{shiped}}'
+		var total='{{net}}'
+		if(shipping=='False'){
+			document.getElementById('billingTo').innerHTML=''
+			document.getElementById('notes').innerHTML=''
+		}
+		var shippingForm = document.getElementById('shippingForm1')
+		if(shippingForm){
+			shippingForm.addEventListener('submit',function(e){
+				e.preventDefault();
+				console.log('submitted')
+				document.getElementById('shippingButton1').classList.add('hidden')
+				document.getElementById('shippingForm2').classList.remove('hidden')
+			})
+		}
+		var shippingForm2=document.getElementById('shippingForm2')
+		if(shippingForm2){
+			shippingForm2.addEventListener('submit',function(e){
+				e.preventDefault();
+				console.log('ordered')
+				document.getElementById('shippingButton2').classList.add('hidden')
+				document.getElementById('paymentMethod').classList.remove('hidden')
+			})
+		}
+		var paypal=document.getElementById('paypal')
+
+		if(paypal){
+			document.getElementById('paypal').addEventListener('click',function(e){
+				submitData()
+			})
+		}
+		function submitData(){
+			console.log('paypal submited')
+			var shippingData={
+				'email':null,
+				'title':null,
+				'firstname':null,
+				'middlename':null,
+				'lastname':null,
+				'adress1':null,
+				'adress2':null,
+				'zipcode':null,
+				'country':null,
+				'state':null,
+				'phone':null,
+				'mobile_number':null,
+				'fax':null,
+				'total':null,
+			}
+			if(shipping != 'False'){
+				shippingData.email=shippingForm.mail.value
+				shippingData.title=shippingForm.title.value
+				shippingData.firstname=shippingForm.firstname.value
+				shippingData.middlename=shippingForm.middlename.value
+				shippingData.lastname=shippingForm.lastname.value
+				shippingData.adress1=shippingForm.adress1.value
+				shippingData.adress2=shippingForm.adress2.value
+				shippingData.zipcode=shippingForm2.zipcode.value
+				shippingData.country=shippingForm2.country.value
+				shippingData.state=shippingForm2.state.value
+				shippingData.phone=shippingForm2.phone.value
+				shippingData.mobile_number=shippingForm2.mobile_number.value
+				shippingData.fax=shippingForm2.fax.value
+				shippingData.total=total
+			}
+			console.log(shippingData)
+			const url = '/Process/'
+			fetch('/Process/',{
+				method:'POST',
+				headers:{
+					'Content-Type':'application/json',
+					'X-CSRFToken':csrftoken,
+				},
+				body:JSON.stringify({'shipping':shippingData}),
+			})
+			.then((response)=>{
+				return response.json()})
+			.then((data)=>{
+				console.log('success',data);
+				alert('order completed');
+				window.location.href="/"
+			}
+		)}
+		const country=document.getElementById('country')
+		const countrySelect=document.getElementById('countrySelect')
+		const contrySelect=document.getElementById('contrySelect')
+		const state=document.getElementById('state')
+		const stateSelect=document.getElementById('stateSelect')
+		if(country){
+			const countryChange=country.addEventListener('change',event=>{
+				console.log(event.target.value)
+				const selectedCountry = event.target.value
+				state.innerHTML=""
+				// state.textContent="-- State / Province / Region --"
+
+			$.ajax({
+				type:'GET',
+				url:`/checkout/country/${selectedCountry}`,
+				success:function(response){
+					console.log(response.data)
+					const countryState=response.data
+					countryState.map(item =>{
+						var option = document.createElement("option");
+						option.value = item.state_name;
+						option.text = item.state_name;
+						state.appendChild(option);
+					
+					})
+				},
+				error:function(error){
+					console.log(error)
+				}
+			})
+		})
+		payment1=document.getElementById('payment1')
+		payment2=document.getElementById('payment2')
+		payment3=document.getElementById('payment3')
+		payment4=document.getElementById('payment4')
+		if(user === 'AnonymousUser'){
+			payment1.classList.remove('hidden')
+			payment2.classList.remove('hidden')
+			payment3.classList.remove('hidden')
+			payment4.classList.remove('hidden')
+		}
+	</script>
 	{% endblock content %}

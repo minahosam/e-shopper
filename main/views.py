@@ -5,25 +5,23 @@ from Profile.models import *
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 import json
+import datetime
+from .utils import *
 # Create your views here.
 def show_all_product(request):
     all_brand=brand.objects.all()
     all_category=category.objects.all()
     all_products=index.objects.all().order_by('-id')[:6]
     if request.user.is_authenticated:
-        order_owner=request.user
-        requested_user=userprofile.objects.get(usrename=order_owner)
-        order_owner_id=request.user.id
-        print(order_owner_id)
-        Order , create=order.objects.get_or_create(order_customer=requested_user,order_completed=False)
-        # item=Order.orderitem_set.all()
-        item=orderItem.objects.filter(item_order=Order)
-        net_total=sum([items.total_selected_item for items in item])
-        total=sum([items.item_quantity for items in item])
+        cookieContent=cookieCart(request)
+        item=cookieContent['items']
+        net_total=cookieContent['net']
+        total=cookieContent['total']
     else:
-        item=[]
+        cookieContent=cookieCart(request)
+        item=cookieContent['items']
         net_total=0
-        total=0
+        total=cookieContent['total']
     return render(request,'main/index.html',{'all_brand':all_brand ,'all_category':all_category,'products':all_products,'total':total})
 def product_detail(request,slug):
     all_products=index.objects.get(slug=slug)
@@ -65,40 +63,39 @@ def search_by_brand(request):
     return render(request,'main/search_brand.html',{'brand':brand_selected_result,'all_brand':all_brand ,'all_category':all_category})
 def cart(request):
     if request.user.is_authenticated:
-        order_owner=request.user
-        requested_user=userprofile.objects.get(usrename=order_owner)
-        order_owner_id=request.user.id
-        print(order_owner_id)
-        Order , create=order.objects.get_or_create(order_customer=requested_user,order_completed=False)
-        # item=Order.orderitem_set.all()
-        item=orderItem.objects.filter(item_order=Order)
-        net_total=sum([items.total_selected_item for items in item])
-        total=sum([items.item_quantity for items in item])
+        cartData=dataCart(request)
+        item=cartData['items']
+        net_total=cartData['net']
+        total=cartData['total']
     else:
-        item=[]
-        net_total=0
-        total=0
+        cookieContent=cookieCart(request)
+        item=cookieContent['items']
+        net_total=cookieContent['net']
+        total=cookieContent['total']
     return render(request,'main/cart.html',{'items':item ,'net':net_total,'total':total})
-@login_required
 def checkout(request):
     if request.user.is_authenticated:
-        order_owner=request.user
-        requested_user=userprofile.objects.get(usrename=order_owner)
-        order_owner_id=request.user.id
-        print(order_owner_id)
-        Order , create=order.objects.get_or_create(order_customer=requested_user,order_completed=False)
-        # item=Order.orderitem_set.all()
-        item=orderItem.objects.filter(item_order=Order)
-        net_total=sum([items.total_selected_item for items in item])
-        total=sum([items.item_quantity for items in item])
-        coutries=country.objects.all()
-        states=state.objects.filter(state_country__in=coutries)
+        cartData=dataCart(request)
+        item=cartData['items']
+        net_total=cartData['net']
+        total=cartData['total']
+        coutries=cartData['countries']
+        states=cartData['state']
+        shipping_info=shippinginfo.objects.all()
+        shiped=False
+        for i in item:
+            if i.item_order.order_completed ==False:
+                shiped = True
     else:
-        item=[]
-        net_total=0
-        total=0
-    return render(request,'main/checkout.html',{'items':item , 'net':net_total,'total':total,'countries':coutries,'state':states})
-@login_required
+        cookieContent=cookieCart(request)
+        item=cookieContent['items']
+        net_total=cookieContent['net']
+        total=cookieContent['total']
+        shipping_info=shippinginfo.objects.all()
+        coutries=country.objects.all()
+        shiped=False
+        states=state.objects.filter(state_country__in=coutries)
+    return render(request,'main/checkout.html',{'items':item , 'net':net_total,'total':total,'countries':coutries,'state':states,'shiped':shiped,'info':shipping_info})
 def update_cart(request):
     additon=json.loads(request.body)
     product=additon['produactId']
@@ -127,3 +124,37 @@ def country_name_from_json(request,*args,**kwargs):
     selected_country=kwargs.get('country')
     states_according_to_country=list(state.objects.filter(state_country__country_name=selected_country).values())
     return JsonResponse({'data':states_according_to_country})
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def process_order(request):
+    transaction_id2=datetime.datetime.now().timestamp()
+    data=json.loads(request.body)
+    print(data)
+    print(transaction_id2)
+    userc=request.user
+    print(userc)
+    if userc.is_authenticated:
+        user=request.user
+        print(user)
+        customer=userprofile.objects.get(username=user)
+        print(customer)
+        Order=order.objects.get(order_customer=customer,order_compcleted=False)
+        total=float(data['shippingData']['total'])
+        print(total)
+        order.transaction_id=transaction_id2
+        item=orderItem.objects.filter(item_order=Order)
+        net_total=sum([items.total_selected_item for items in item])
+        if total == net_total:
+            Order.order_completed=True
+        Order.save()
+        shiiping=shippinginfo.objects.create(
+            shipping_user=customer,shipping_order=Order,shipping_mail=data['shippingData']['email'],
+            title=data['shippingData']['title'],shipping_firstname=data['shippingData']['firstname'],shiping_middlename=data['shippingData']['middlename'],
+            shipping_lastname=data['shippingData']['lastname'],shiping_adress1=data['shippingData']['adress1'],shipping_adress2=data['shippingData']['adress2'],
+            shipping_zipcode=data['shippingData']['zipcode'],shipping_country=data['shippingData']['country'],shipping_state=data['shippingData']['state'],
+            shipping_phone=data['shippingData']['phone'],shipping_mobile_number=data['shippingData']['mobile_number'],shipping_fax=data['shippingData']['fax']
+        )
+        shiiping.save()
+    else:
+        print('user not logged in')
+    return JsonResponse('payment submitted.........',safe=False)
